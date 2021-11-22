@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'card_back.dart';
 import 'card.dart';
 
 class CardForm extends StatefulWidget {
@@ -9,7 +10,8 @@ class CardForm extends StatefulWidget {
   State<CardForm> createState() => _CardFormState();
 }
 
-class _CardFormState extends State<CardForm> {
+class _CardFormState extends State<CardForm>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final TextEditingController cvvController = TextEditingController();
   String _cardNumber = "";
@@ -21,6 +23,113 @@ class _CardFormState extends State<CardForm> {
   String focused = "";
   final FocusNode fnodenumber = FocusNode();
   final FocusNode fnodename = FocusNode();
+  final FocusNode fnodemonth = FocusNode();
+  final FocusNode fnodeyear = FocusNode();
+  final FocusNode fnodecvv = FocusNode();
+
+  late final TextEditingController _textEditing;
+
+  late AnimationController animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    animationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 1500));
+    animationController.addListener(() {
+      setState(() {});
+    });
+    _textEditing = TextEditingController();
+    _textEditing.addListener(() {
+      final String value = _textEditing.value.text;
+    });
+    fnodenumber.addListener(() {
+      setState(() {
+        if (fnodenumber.hasFocus) {
+          if (focused == 'cvv') {
+            animationController.reverse();
+          }
+          focused = 'cardnumber';
+        } else {
+          focused = '';
+        }
+      });
+    });
+    fnodename.addListener(() {
+      setState(() {
+        if (fnodename.hasFocus) {
+          if (focused == 'cvv') {
+            animationController.reverse();
+          }
+          focused = 'cardname';
+        } else {
+          focused = '';
+        }
+      });
+    });
+    fnodemonth.addListener(() {
+      setState(() {
+        if (!fnodemonth.hasFocus) {
+          if (focused == 'cvv') {
+            animationController.reverse();
+          }
+          focused = 'expiration';
+        } else {
+          focused = '';
+        }
+      });
+    });
+    fnodeyear.addListener(() {
+      print(fnodeyear.hasFocus);
+      setState(() {
+        if (!fnodeyear.hasFocus) {
+          if (focused == 'cvv') {
+            animationController.reverse();
+          }
+          focused = 'expiration';
+        } else {
+          focused = '';
+        }
+      });
+    });
+    fnodecvv.addListener(() {
+      setState(() {
+        if (!fnodecvv.hasFocus) {
+          animationController.reverse();
+          focused = 'cvv';
+        } else {
+          animationController.forward();
+          focused = '';
+        }
+      });
+    });
+  }
+
+  currentAnimation() {
+    if (animationController.velocity > 0) {
+      return Transform(
+          transform: Matrix4.rotationY((animationController.value) * (3.14)),
+          alignment: Alignment.center,
+          child: CreditCard(
+            year: year,
+            cardnumber: _cardNumber,
+            name: name,
+            cvv: cvv,
+            month: month,
+            focused: focused,
+          ));
+    }
+  }
+
+  @override
+  void dispose() {
+    fnodemonth.dispose();
+    fnodeyear.dispose();
+    fnodecvv.dispose();
+    fnodenumber.dispose();
+    fnodename.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,13 +173,7 @@ class _CardFormState extends State<CardForm> {
                   maxLength: 19,
                   onTap: () => {
                     setState(() {
-                      focused = "cardnumber";
-                    })
-                  },
-                  onEditingComplete: () => {
-                    setState(() {
-                      fnodenumber.unfocus();
-                      focused = "";
+                      fnodenumber.requestFocus();
                     })
                   },
                   controller: _controller,
@@ -122,13 +225,7 @@ class _CardFormState extends State<CardForm> {
                   },
                   onTap: () => {
                     setState(() {
-                      focused = 'cardname';
-                    })
-                  },
-                  onEditingComplete: () => {
-                    setState(() {
-                      fnodename.unfocus();
-                      focused = "";
+                      fnodename.requestFocus();
                     })
                   },
                   keyboardType: TextInputType.name,
@@ -168,7 +265,13 @@ class _CardFormState extends State<CardForm> {
                 ),
                 Row(children: [
                   DropdownButton<String>(
+                      focusNode: fnodemonth,
                       isDense: true,
+                      onTap: () {
+                        setState(() {
+                          fnodemonth.requestFocus();
+                        });
+                      },
                       elevation: 16,
                       onChanged: (String? newValue) {
                         setState(() {
@@ -188,6 +291,12 @@ class _CardFormState extends State<CardForm> {
                     width: 10,
                   ),
                   DropdownButton<String>(
+                      focusNode: fnodeyear,
+                      onTap: () {
+                        setState(() {
+                          fnodeyear.requestFocus();
+                        });
+                      },
                       isDense: true,
                       elevation: 16,
                       onChanged: (String? newValue) {
@@ -220,6 +329,12 @@ class _CardFormState extends State<CardForm> {
                           baseOffset: cvvController.text.length,
                           extentOffset: cvvController.text.length);
                     },
+                    focusNode: fnodecvv,
+                    onTap: () {
+                      setState(() {
+                        fnodecvv.requestFocus();
+                      });
+                    },
                     decoration: InputDecoration(
                         isDense: true,
                         border: OutlineInputBorder(),
@@ -238,17 +353,30 @@ class _CardFormState extends State<CardForm> {
               ],
             )),
         Transform.translate(
-            offset: Offset(0, -120),
+            offset: Offset(0, -130),
             child: Container(
-                child: CreditCard(
-                  year: year,
-                  cardnumber: _cardNumber,
-                  name: name,
-                  cvv: cvv,
-                  month: month,
-                  focused: focused,
-                ),
-                margin: EdgeInsets.all(20)))
+                child: animationController.value < 0.5
+                    ? Transform(
+                        transform: Matrix4.rotationY(
+                            (animationController.value * 3.14)),
+                        alignment: Alignment.center,
+                        child: CreditCard(
+                          year: year,
+                          cardnumber: _cardNumber,
+                          name: name,
+                          cvv: cvv,
+                          month: month,
+                          focused: focused,
+                        ))
+                    : Transform(
+                        transform: Matrix4.rotationY((3.14 / 2 -
+                            (animationController.value - 0.5) * 3.14)),
+                        child: CardBack(
+                          cardnumber: _cardNumber,
+                          cvv: cvv,
+                        ),
+                        alignment: Alignment.center),
+                margin: EdgeInsets.all(20))),
       ],
     );
   }

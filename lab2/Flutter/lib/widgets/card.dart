@@ -195,7 +195,7 @@ class CreditCard extends StatelessWidget {
                         padding: EdgeInsets.all(4),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(4),
-                            border: focused == 'cardname'
+                            border: focused == 'expiration'
                                 ? Border.all(color: Colors.white)
                                 : null)),
                     flex: 2),
