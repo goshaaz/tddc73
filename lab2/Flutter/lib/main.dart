@@ -17,8 +17,10 @@ class MyApp extends StatelessWidget {
           color: Colors.blue[100],
         ),
         Center(
-            child:
-                Transform.translate(offset: Offset(0, 110), child: CardForm())),
+          child: SingleChildScrollView(
+              child: Transform.translate(
+                  offset: Offset(0, 110), child: CardForm())),
+        )
       ])),
     );
   }
