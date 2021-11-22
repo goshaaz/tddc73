@@ -26,22 +26,74 @@ class _CardFormState extends State<CardForm>
   final FocusNode fnodemonth = FocusNode();
   final FocusNode fnodeyear = FocusNode();
   final FocusNode fnodecvv = FocusNode();
+  bool yearOpened = false;
 
   late final TextEditingController _textEditing;
 
   late AnimationController animationController;
 
+  int currentMonth = DateTime.now().month;
+  int currentYear = DateTime.now().year;
+  var yearsList = ['Year'];
+  var monthsList = [
+    'Month',
+    '01',
+    '02',
+    '03',
+    '04',
+    '05',
+    '06',
+    '07',
+    '08',
+    '09',
+    '10',
+    '11',
+    '12'
+  ];
+
+  colorMonth(String monthVal) {
+    if (year == 'Year' || int.parse(year) > currentYear) {
+      if (monthVal == 'Month') return Colors.black87;
+      return Colors.black;
+    }
+    if (monthVal == 'Month') {
+      return Colors.black87;
+    }
+    if (monthVal[0] == '0') {
+      if (int.parse(monthVal[1]) < currentMonth) {
+        return Colors.black45;
+      } else {
+        return Colors.black;
+      }
+    }
+    if (int.parse(monthVal) < currentMonth) {
+      return Colors.black45;
+    } else {
+      return Colors.black;
+    }
+  }
+
+  colorYear(String yearVal) {
+    print(yearOpened);
+    if (yearVal == 'Year') {
+      return Colors.black87;
+    } else {
+      return Colors.black;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    for (var i = currentYear; i < currentYear + 8; i++) {
+      yearsList.add(i.toString());
+    }
+    print(currentMonth);
+    print(currentYear);
     animationController = AnimationController(
         vsync: this, duration: Duration(milliseconds: 1500));
     animationController.addListener(() {
       setState(() {});
-    });
-    _textEditing = TextEditingController();
-    _textEditing.addListener(() {
-      final String value = _textEditing.value.text;
     });
     fnodenumber.addListener(() {
       setState(() {
@@ -80,15 +132,16 @@ class _CardFormState extends State<CardForm>
       });
     });
     fnodeyear.addListener(() {
-      print(fnodeyear.hasFocus);
       setState(() {
         if (!fnodeyear.hasFocus) {
           if (focused == 'cvv') {
             animationController.reverse();
           }
           focused = 'expiration';
+          yearOpened = true;
         } else {
           focused = '';
+          yearOpened = false;
         }
       });
     });
@@ -279,12 +332,15 @@ class _CardFormState extends State<CardForm>
                         });
                       },
                       value: month,
-                      items: <String>['Month', '01', '02', '03', '12']
+                      items: monthsList
                           .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value[0] == "0" ? value[1] : value,
-                          enabled: !(value == "Month"),
-                          child: Text(value),
+                          enabled: colorMonth(value) == Colors.black,
+                          child: Text(
+                            value,
+                            style: TextStyle(color: colorMonth(value)),
+                          ),
                         );
                       }).toList()),
                   SizedBox(
@@ -302,15 +358,23 @@ class _CardFormState extends State<CardForm>
                       onChanged: (String? newValue) {
                         setState(() {
                           year = newValue!;
+
+                          if (month != 'Month' &&
+                              int.parse(month) < currentMonth) {
+                            month = 'Month';
+                          }
                         });
                       },
                       value: year,
-                      items: <String>['Year', '2021', '2022', '2023']
+                      items: yearsList
                           .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           enabled: !(value == "Year"),
-                          child: Text(value),
+                          child: Text(
+                            value,
+                            style: TextStyle(color: colorYear(value)),
+                          ),
                         );
                       }).toList()),
                   SizedBox(width: 52),
