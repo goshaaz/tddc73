@@ -45,7 +45,6 @@ class CreditCard extends StatelessWidget {
     if (troy.hasMatch(s)) {
       return 'troy';
     }
-
     return 'visa';
   }
 

@@ -21,6 +21,8 @@ class _CardFormState extends State<CardForm>
   String name = "";
   String cvv = "";
   String focused = "";
+  String currentCard = "visa";
+
   final FocusNode fnodenumber = FocusNode();
   final FocusNode fnodename = FocusNode();
   final FocusNode fnodemonth = FocusNode();
@@ -80,6 +82,32 @@ class _CardFormState extends State<CardForm>
     } else {
       return Colors.black;
     }
+  }
+
+  String cardType(String s) {
+    RegExp visa = RegExp(r'^4');
+    RegExp mastercard = RegExp(r'^5[1-5]');
+    RegExp amex = RegExp(r'^(34|37)');
+    RegExp discover = RegExp(r'^6011');
+    RegExp troy = RegExp(r'^9792');
+
+    if (visa.hasMatch(s)) {
+      return 'visa';
+    }
+    if (amex.hasMatch(s)) {
+      return 'amex';
+    }
+    if (mastercard.hasMatch(s)) {
+      return 'mastercard';
+    }
+    if (discover.hasMatch(s)) {
+      return 'discover';
+    }
+    if (troy.hasMatch(s)) {
+      return 'troy';
+    }
+
+    return 'visa';
   }
 
   @override
@@ -251,6 +279,12 @@ class _CardFormState extends State<CardForm>
                         extentOffset: _controller.text.length);
                     setState(() {
                       _cardNumber = _controller.text;
+                      if (cardType(_controller.text) != 'amex' &&
+                          cvvController.text.length > 3) {
+                        cvvController.text = cvvController.text
+                            .substring(0, cvvController.text.length - 1);
+                        cvv = cvvController.text;
+                      }
                     });
                   },
                   keyboardType: TextInputType.number,
@@ -282,6 +316,9 @@ class _CardFormState extends State<CardForm>
                     })
                   },
                   keyboardType: TextInputType.name,
+                  inputFormatters: [
+                    new FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]")),
+                  ],
                   decoration: InputDecoration(
                       isDense: true,
                       border: OutlineInputBorder(),
@@ -382,7 +419,7 @@ class _CardFormState extends State<CardForm>
                       child: TextField(
                     controller: cvvController,
                     keyboardType: TextInputType.number,
-                    maxLength: 4,
+                    maxLength: cardType(_cardNumber) == 'amex' ? 4 : 3,
                     onChanged: (value) {
                       cvvController.text =
                           cvvController.text.replaceAll(" ", "");
