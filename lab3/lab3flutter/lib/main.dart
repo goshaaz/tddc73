@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lab3flutter/widgets/main.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import './widgets/repo.dart';
+import './secretkeys/keys.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,7 +11,9 @@ final HttpLink httpLink = HttpLink(
 );
 
 final AuthLink authLink = AuthLink(
-  getToken: () async => 'Bearer ',
+  getToken: () async => 'Bearer ' + accessTokenGithub,
+  // OR
+  // getToken: () => 'Bearer <YOUR_PERSONAL_ACCESS_TOKEN>',
 );
 
 final Link link = authLink.concat(httpLink);
@@ -46,6 +49,7 @@ class _MyAppState extends State<MyApp> {
     if (month.length == 1) {
       day = '0' + day;
     }
+    print(year);
 
     String readRepositories = """
   {
@@ -97,6 +101,7 @@ class _MyAppState extends State<MyApp> {
                       options: QueryOptions(document: gql(readRepositories)),
                       builder: (result, {fetchMore, refetch}) {
                         if (result.hasException) {
+                          print(result.exception);
                           return Text(result.exception.toString());
                         }
 
