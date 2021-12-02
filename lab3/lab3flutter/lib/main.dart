@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lab3flutter/widgets/main.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import './widgets/repo.dart';
 import './secretkeys/keys.dart';
@@ -10,11 +9,8 @@ final HttpLink httpLink = HttpLink(
   'https://api.github.com/graphql',
 );
 
-final AuthLink authLink = AuthLink(
-  getToken: () async => 'Bearer ' + accessTokenGithub,
-  // OR
-  // getToken: () => 'Bearer <YOUR_PERSONAL_ACCESS_TOKEN>',
-);
+final AuthLink authLink =
+    AuthLink(getToken: () async => 'Bearer ' + accessTokenGithub);
 
 final Link link = authLink.concat(httpLink);
 
@@ -49,7 +45,6 @@ class _MyAppState extends State<MyApp> {
     if (month.length == 1) {
       day = '0' + day;
     }
-    print(year);
 
     String readRepositories = """
   {
@@ -69,6 +64,9 @@ class _MyAppState extends State<MyApp> {
 					  login
             avatarUrl
 					}
+          watchers{
+            totalCount
+          }
           name
           forkCount
           description
@@ -87,9 +85,6 @@ class _MyAppState extends State<MyApp> {
         client: client,
         child: MaterialApp(
             theme: ThemeData(primarySwatch: Colors.indigo),
-            routes: {
-              '/asd': (_) => Main(),
-            },
             title: 'Welcome to Flutter',
             home: Scaffold(
                 appBar: AppBar(
@@ -101,7 +96,6 @@ class _MyAppState extends State<MyApp> {
                       options: QueryOptions(document: gql(readRepositories)),
                       builder: (result, {fetchMore, refetch}) {
                         if (result.hasException) {
-                          print(result.exception);
                           return Text(result.exception.toString());
                         }
 
@@ -123,14 +117,19 @@ class _MyAppState extends State<MyApp> {
                                   itemBuilder:
                                       (BuildContext context, int index) {
                                     if (repoList[index]['node']
-                                                ['primaryLanguage']
-                                            .toString() ==
-                                        'null') {
+                                                    ['primaryLanguage']
+                                                .toString() ==
+                                            'null' ||
+                                        repoList[index]['node']['watchers']
+                                                .toString() ==
+                                            'null' ||
+                                        repoList[index]['node']['description']
+                                                .toString() ==
+                                            'null') {
                                       return SizedBox.shrink();
                                     }
                                     return GestureDetector(
                                         onTap: () {
-                                          print(index);
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -138,6 +137,37 @@ class _MyAppState extends State<MyApp> {
                                                       reponame: repoList[index]
                                                               ['node']['name']
                                                           .toString(),
+                                                      language: repoList[index]
+                                                                  ['node'][
+                                                              'primaryLanguage']
+                                                          ['name'],
+                                                      starCount: repoList[index]
+                                                                      ['node']
+                                                                  ['stargazers']
+                                                              ['totalCount']
+                                                          .toString(),
+                                                      description:
+                                                          repoList[index]
+                                                                  ['node']
+                                                              ['description'],
+                                                      forkCount: repoList[index]
+                                                                  ['node']
+                                                              ['forkCount']
+                                                          .toString(),
+                                                      avatarUrl: repoList[index]
+                                                              ['node']['owner']
+                                                          ['avatarUrl'],
+                                                      watchCount: repoList[
+                                                                          index]
+                                                                      ['node']
+                                                                  ['watchers']
+                                                              ['totalCount']
+                                                          .toString(),
+                                                      userLogin: repoList[index]
+                                                              ['node']['owner']
+                                                          ['login'],
+                                                      repoUrl: repoList[index]
+                                                          ['node']['url'],
                                                     )),
                                           );
                                         },
