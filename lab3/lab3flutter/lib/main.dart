@@ -405,6 +405,14 @@ class _MyAppState extends State<MyApp> {
                                           DropdownMenuItem(
                                               onTap: () {
                                                 setState(() {
+                                                  language = 'Rust';
+                                                });
+                                              },
+                                              child: Text("Rust"),
+                                              value: "Rust"),
+                                          DropdownMenuItem(
+                                              onTap: () {
+                                                setState(() {
                                                   language = 'Scala';
                                                 });
                                               },
