@@ -54,11 +54,11 @@ class PasswordStrengthFieldState extends State<PasswordStrengthField> {
       }
       barFilled -= toSubtract;
     }
-    if (!upperCaseCheck.hasMatch(pw) && widget.shouldContainSpecial) {
+    if (!upperCaseCheck.hasMatch(pw) && widget.shouldContainUppercase) {
       hintList.add("Password doesn't contain uppercase letters");
       barFilled -= toSubtract;
     }
-    if (!specialCheck.hasMatch(pw) && widget.shouldContainUppercase) {
+    if (!specialCheck.hasMatch(pw) && widget.shouldContainSpecial) {
       hintList.add("Password doesn't contain special characters");
       barFilled -= toSubtract;
     }
@@ -136,7 +136,7 @@ class PasswordStrengthFieldState extends State<PasswordStrengthField> {
                   getBar(password)[2][index],
                   style: TextStyle(
                       fontSize: 13,
-                      color: Colors.redAccent,
+                      color: Colors.red,
                       fontWeight: FontWeight.w600),
                 ),
               );

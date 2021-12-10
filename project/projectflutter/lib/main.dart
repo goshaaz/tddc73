@@ -75,7 +75,7 @@ class _HomeState extends State<Home> {
       ),
       Carousel(
         movieList: movieList,
-        numOfItems: 2,
+        numOfItems: 3,
       )
     ];
 
