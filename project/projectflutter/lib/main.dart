@@ -69,13 +69,19 @@ class _HomeState extends State<Home> {
         margin: EdgeInsets.all(40),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Expanded(
-            child: PasswordStrengthField(),
+            child: PasswordStrengthField(
+              onChange: (password, strength) {
+                print(password);
+                print(strength);
+              },
+              shouldContainSpecial: false,
+            ),
           )
         ]),
       ),
       Carousel(
         movieList: movieList,
-        numOfItems: 3,
+        numOfItems: 2,
       )
     ];
 

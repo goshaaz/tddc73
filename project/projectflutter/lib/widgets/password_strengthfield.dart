@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class PasswordStrengthField extends StatefulWidget {
   PasswordStrengthField(
       {Key? key,
+      required this.onChange,
       this.shouldContainUppercase = true,
       this.shouldContainSpecial = true,
       this.minLength = 6})
@@ -10,6 +11,7 @@ class PasswordStrengthField extends StatefulWidget {
   final bool shouldContainUppercase;
   final bool shouldContainSpecial;
   final int minLength;
+  final void Function(String password, String strength) onChange;
 
   @override
   PasswordStrengthFieldState createState() => PasswordStrengthFieldState();
@@ -83,6 +85,7 @@ class PasswordStrengthFieldState extends State<PasswordStrengthField> {
           onChanged: (value) {
             setState(() {
               password = value;
+              widget.onChange(value, strengthText(getBar(password)[1]));
             });
           },
           obscureText: true,
